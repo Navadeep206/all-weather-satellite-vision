@@ -1,0 +1,36 @@
+# Environments
+.venv/
+venv/
+ENV/
+env/
+
+# Python caching
+**/__pycache__/
+*.py[cod]
+*$py.class
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environments files
+.env
+.env.local
+
+# Project data
+data/raw/
+data/processed/
+
+# Checkpoints & model artifacts
+checkpoints/
+*.pt
+*.pth
+*.ckpt

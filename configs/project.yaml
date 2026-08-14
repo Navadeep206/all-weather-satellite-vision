@@ -1,0 +1,6 @@
+project_name: all-weather-satellite-vision
+version: 0.1.0
+seed: 42
+framework: pytorch
+primary_dataset: sentinel-2
+target: multispectral-to-rgb
