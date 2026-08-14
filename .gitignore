@@ -29,6 +29,7 @@ Thumbs.db
 data/raw/
 data/processed/
 data/degraded/
+data/dataset/
 
 # Checkpoints & model artifacts
 checkpoints/

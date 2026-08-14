@@ -170,3 +170,10 @@ def test_process_scene_idempotency(dummy_scene_setup):
     success2, msg2 = process_scene(scene_id, raw_dir, processed_dir, catalog, config)
     assert success2
     assert "already exist" in msg2
+    
+    # Clean up generated preview file
+    from src.utils.config import get_project_root
+    preview_file = get_project_root() / "data" / "samples" / "previews" / f"{scene_id}_preview.png"
+    if preview_file.exists():
+        preview_file.unlink()
+

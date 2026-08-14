@@ -165,3 +165,10 @@ def test_synthetic_integration_pipeline(tmp_path):
     with rasterio.open(output_dir / "mask.tif") as ds:
         assert ds.count == 1
         assert ds.dtypes[0] == "uint8"
+        
+    # Clean up generated preview file
+    from src.utils.config import get_project_root
+    preview_file = get_project_root() / "data" / "samples" / "phase3" / "SMP_TEST_preview.png"
+    if preview_file.exists():
+        preview_file.unlink()
+
