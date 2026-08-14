@@ -7,7 +7,7 @@ All-Weather Satellite Vision
 A future three-stage satellite image restoration and multispectral-to-RGB pipeline.
 
 ## Current Status
-Phase 2 — Preprocessing & Band Alignment (Completed)
+Phase 3 — Synthetic Degradation Engine (Completed)
 
 ## Planned Architecture
 Sentinel-2 multispectral input
@@ -38,50 +38,73 @@ Implements a reliable, reproducible, and scalable search, catalog, download, and
 ## Phase 2 — Preprocessing & Band Alignment
 Converts raw Sentinel-2 Level-2A products into clean, spatially aligned, geospatially correct float32 surface reflectance GeoTIFF representations.
 
-### Preprocessing Specifications
-* **Raw vs Processed**: Raw products under `data/raw/` remain strictly untouched and immutable. All output files are generated under `data/processed/sentinel2/<scene_id>/`.
-* **Selected Bands**: B02 (Blue), B03 (Green), B04 (Red), B08 (NIR).
-* **Target Grid & Resolution**: Derived from actual geospatial metadata of B02 at native 10 m resolution. Target grid shape, projection (CRS), and geotransform are strictly matched.
-* **Geospatial Resampling**: Uses Rasterio `reproject` (GDAL-compatible warp engine). bilinear resampling is applied by default (configurable).
-* **Reflectance Scaling**: Reads baseline metadata XML (`MTD_MSIL2A.xml`) to dynamically extract the quantification value and radiometric offset (`BOA_ADD_OFFSET`), computing bottom-of-atmosphere (BOA) reflectance:
-  $$\text{Reflectance} = \frac{\text{DN} + \text{BOA\_ADD\_OFFSET}}{\text{QUANTIFICATION\_VALUE}}$$
-  Values are saved in `float32`.
-* **Invalid-pixel & Nodata Handling**: Raw pixels equal to nodata (DN = 0) are converted to `np.nan` in the output float32 files. Invalid or out-of-bound pixels (e.g. DN < 0 or DN >= 65535) are likewise masked.
-* **RGB Channel Mapping**: `rgb.tif` is saved with channels `[R, G, B]` corresponding directly to bands `[B04, B03, B02]`.
-* **Quality Validation**: Automatically checks structural shape, band count, coordinate systems (CRS), bounding boxes, transform arrays, and numeric counts (NaN, Inf, Nodata counts). If checks fail, processing is aborted.
+---
 
-*Note: Phase 2 does not perform cloud detection, cloud removal, synthetic degradation, or machine-learning normalization.*
+## Phase 3 — Synthetic Degradation Engine
+Establishes a scientifically controlled synthetic degradation engine that simulates atmospheric haze scattering and spatial occlusion regions while preserving the original clean image as ground truth.
+
+### Key Degradation Specifications
+* **Atmospheric Scattering Model**: Operates per spectral channel using:
+  $$I(x) = J(x)t(x) + A(1 - t(x))$$
+  where $J(x)$ is clean reflectance, $t(x)$ is the transmission map, and $A$ is the atmospheric light per channel.
+* **Transmission Map**: Generates spatially varying, smooth transmission maps using Gaussian-smoothed random noise maps scaled deterministically.
+* **Haze Severity Levels**: Controls scattering coefficient $\beta$ range:
+  * `low`: $\beta \in [0.1, 0.4]$
+  * `medium`: $\beta \in [0.4, 1.0]$
+  * `high`: $\beta \in [1.0, 2.2]$
+  * `extreme`: $\beta \in [2.2, 3.5]$
+* **Spatial Occlusion Generation**:
+  * `1` = valid pixel, `0` = occluded pixel.
+  * **Cloud-like Masks**: Procedural low-frequency Gaussian noise thresholded to simulate irregular cloud boundaries.
+  * **Irregular Masks**: Fragmented connected missing regions using higher-frequency noise.
+  * **Rectangular Masks**: Simple sensor-style missing blocks.
+* **Occlusion Coverage Levels**:
+  * `low`: 5% to 15%
+  * `medium`: 15% to 35%
+  * `high`: 35% to 60%
+  * `extreme`: 60% to 85%
+* **Combined Degradation**: Sequences operations in a strict order:
+  1. Apply atmospheric degradation.
+  2. Apply spatial occlusion.
+* **Ground Truth Preservation**: The original clean image remains strictly unchanged as ground truth (`clean.tif`).
+* **Value Safety**: Implements post-scattering checks clipping float32 outputs to $[0.0, 1.0]$ and logging pre/post-clipping metrics.
+* **Reproducibility**: Local, seeded NumPy Generators guarantee deterministic sample recreation.
+
+*Scientific Caution: Synthetic masks are procedural approximations of spatial occlusion and are not a substitute for physically observed cloud masks. Synthetic haze is a controlled atmospheric-degradation model and may not reproduce every real-world atmospheric condition.*
 
 ### Output Directory Structure
-For each processed scene under `data/processed/sentinel2/<scene_id>/`:
-* `multispectral.tif`: 4-band float32 GeoTIFF containing B02, B03, B04, B08.
-* `rgb.tif`: 3-band float32 GeoTIFF containing B04, B03, B02.
-* `metadata.json`: Machine-readable processing metadata (width, height, bounds, CRS).
-* `quality.json`: Validity stats (nan count, valid percentages, status).
+For each generated sample under `data/degraded/combined/<sample_id>/`:
+* `clean.tif`: 4-band float32 GeoTIFF representing original clean reflectance.
+* `degraded.tif`: 4-band float32 GeoTIFF representing simulated degraded observation.
+* `mask.tif`: 1-band uint8 GeoTIFF representing spatial occlusion mask (if applicable).
+* `metadata.json`: Machine-readable parameters (seed, beta, actual coverage, clipping stats).
 
 ### CLI Command Reference
 
-#### 1. Preprocess Scenes
-Process a single scene by its ID:
+#### 1. Generate Combined Sample
 ```bash
-PYTHONPATH=. venv/bin/python -m src.data.preprocessing --scene-id S2_L2A_20230907_T32TNS_abcdefgh
+PYTHONPATH=. venv/bin/python -m src.data.degradation_cli \
+  --input-scene S2_DUMMY \
+  --combined \
+  --severity medium \
+  --mask-type cloud_like \
+  --seed 42 \
+  --max-samples 1
 ```
 
-Or process all validated scenes:
-```bash
-PYTHONPATH=. venv/bin/python -m src.data.preprocessing --all
-```
-
-#### 2. Run Preprocessing Dry Run
-Preview what will happen without writing any output files:
-```bash
-PYTHONPATH=. venv/bin/python -m src.data.preprocessing --scene-id S2_L2A_20230907_T32TNS_abcdefgh --dry-run
-```
+#### 2. Generate Haze-only or Occlusion-only Samples
+* **Haze-only**:
+  ```bash
+  PYTHONPATH=. venv/bin/python -m src.data.degradation_cli --input-scene S2_DUMMY --haze-only --severity high
+  ```
+* **Occlusion-only**:
+  ```bash
+  PYTHONPATH=. venv/bin/python -m src.data.degradation_cli --input-scene S2_DUMMY --occlusion-only --severity extreme --mask-type irregular
+  ```
 
 ---
 
 ## Future Phases
-* Phase 3 — Synthetic Degradation
 * Phase 4 — Dataset Construction
 * Phase 5 — Multispectral-to-RGB Baseline
 * Phase 6 — Atmospheric Restoration

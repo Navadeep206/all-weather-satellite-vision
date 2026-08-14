@@ -1,0 +1,42 @@
+degradation:
+  seed: 42
+  degraded_directory: data/degraded
+  samples_limit: 20
+
+haze:
+  enabled: true
+  # Default atmospheric light values for [B02, B03, B04, B08] (Reflectance units, e.g. 0.0 to 1.0)
+  atmospheric_light: [0.75, 0.70, 0.65, 0.55]
+  severity_levels:
+    low:
+      beta_min: 0.1
+      beta_max: 0.4
+    medium:
+      beta_min: 0.4
+      beta_max: 1.0
+    high:
+      beta_min: 1.0
+      beta_max: 2.2
+    extreme:
+      beta_min: 2.2
+      beta_max: 3.5
+
+occlusion:
+  enabled: true
+  coverage_levels:
+    low:
+      min_fraction: 0.05
+      max_fraction: 0.15
+    medium:
+      min_fraction: 0.15
+      max_fraction: 0.35
+    high:
+      min_fraction: 0.35
+      max_fraction: 0.60
+    extreme:
+      min_fraction: 0.60
+      max_fraction: 0.85
+  types:
+    - cloud_like
+    - irregular
+    - rectangular

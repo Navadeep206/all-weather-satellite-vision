@@ -7,3 +7,15 @@ from src.data.validator import SceneValidator
 from src.data.preprocessing import process_scene
 from src.data.band_utils import read_and_resample_band, parse_metadata_from_zip
 from src.data.quality import compute_raster_statistics, verify_processed_scene
+from src.data.masks import (
+    generate_cloud_mask,
+    generate_irregular_mask,
+    generate_rectangular_mask,
+    calculate_mask_coverage
+)
+from src.data.degradation import (
+    generate_transmission_map,
+    apply_atmospheric_degradation,
+    apply_occlusion,
+    generate_sample
+)
