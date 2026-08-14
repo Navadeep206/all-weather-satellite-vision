@@ -1,0 +1,86 @@
+[
+  {
+    "scene_id": "S2_L2A_20230907_UNKNOWN_a71c2847",
+    "product_id": "a71c2847-733b-4db2-8ea6-0b6182c7d3c7",
+    "product_name": "S2A_MSIL2A_20230907T100031_N0510_R122_T33TTG_20241025T114023",
+    "collection": "sentinel-2-l2a",
+    "processing_level": "L2A",
+    "platform": "sentinel-2a",
+    "sensing_datetime": "2023-09-07T10:00:31.024000Z",
+    "tile_id": null,
+    "cloud_cover": 0.0,
+    "footprint": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            11.354954233772318,
+            42.39470139413761
+          ],
+          [
+            11.410731332148327,
+            41.407726190110715
+          ],
+          [
+            12.723033432665233,
+            41.441212166985935
+          ],
+          [
+            12.687592758603905,
+            42.42936087235922
+          ],
+          [
+            11.354954233772318,
+            42.39470139413761
+          ]
+        ]
+      ]
+    },
+    "download_url": null,
+    "source": "CDSE",
+    "search_timestamp": "2026-08-14T06:05:25.605508Z",
+    "status": "discovered"
+  },
+  {
+    "scene_id": "S2_L2A_20230907_UNKNOWN_34fef070",
+    "product_id": "34fef070-ba06-449e-b116-354cf6e72a65",
+    "product_name": "S2A_MSIL2A_20230907T100031_N0510_R122_T32TQM_20241025T114023",
+    "collection": "sentinel-2-l2a",
+    "processing_level": "L2A",
+    "platform": "sentinel-2a",
+    "sensing_datetime": "2023-09-07T10:00:31.024000Z",
+    "tile_id": null,
+    "cloud_cover": 0.0,
+    "footprint": {
+      "type": "Polygon",
+      "coordinates": [
+        [
+          [
+            11.430710453033498,
+            42.426911995973605
+          ],
+          [
+            11.393460776835221,
+            41.43884624479472
+          ],
+          [
+            12.705562298541299,
+            41.40403474612011
+          ],
+          [
+            12.763136432704886,
+            42.39088066238852
+          ],
+          [
+            11.430710453033498,
+            42.426911995973605
+          ]
+        ]
+      ]
+    },
+    "download_url": null,
+    "source": "CDSE",
+    "search_timestamp": "2026-08-14T06:05:25.605806Z",
+    "status": "discovered"
+  }
+]
