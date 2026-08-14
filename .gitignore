@@ -1,0 +1,32 @@
+# Python virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Python cache files
+**/__pycache__/
+*.py[cod]
+*$py.class
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Editor/OS settings
+.DS_Store
+Thumbs.db
+.ipynb_checkpoints/
+.env
+
+# Raw/processed large datasets
+data/raw/
+data/processed/
+data/degraded/
+data/dataset/
+data/real/
+*.tif
+*.npy
+*.pth
+*.pt
